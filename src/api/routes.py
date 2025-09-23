@@ -6,7 +6,7 @@ from api.models import db, User
 from api.utils import generate_sitemap, APIException
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
 
 api = Blueprint('api', __name__)
 
@@ -59,3 +59,20 @@ def handle_log_in():
     }
     return jsonify(response_body), 200
     db.session.commit()
+
+@api.route('/user',methods=['GET'])
+@jwt_required()
+def get_user():
+    user_email = get_jwt_identity()
+    user = User.query.filter_by(email=user_email).first()
+    if not user:
+        response_body = {
+            "message": "Invalid User entered",
+        }
+        return jsonify(response_body), 400
+
+    response_body = {
+        "message": "User created successfully!",
+        "user": user.serialize()
+    }
+    return jsonify(response_body), 200

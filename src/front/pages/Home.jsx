@@ -1,10 +1,12 @@
 import React, { useEffect } from "react"
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { Signup_Login } from "../components/Signup_Login.jsx";
 
 export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
 	const backendUrl = import.meta.env.VITE_BACKEND_URL
+	const token = import.meta.env.VITE_TOKEN
 
 	const loadMessage = async () => {
 		try {
@@ -26,13 +28,30 @@ export const Home = () => {
 
 	}
 
+	const get_user = () => {
+		let options = {
+			method: "GET",
+			headers:{
+				"Content-Type": "application/json",
+				Authorization: "Bearer " + token
+			}
+		}
+		fetch(backendUrl + "/user",options)
+		.then((resp)=>resp.json())
+		.then((data)=>{
+			console.log("Data =", data)
+		})
+	}
+
 	useEffect(() => {
 		loadMessage()
+		get_user()
 	}, [])
 
 	return (
 		<div className="text-center mt-5">
-			<h1>{backendUrl}</h1>
+			<h1>Hi there</h1>
+			<Signup_Login/>
 		</div>
 	);
 }; 

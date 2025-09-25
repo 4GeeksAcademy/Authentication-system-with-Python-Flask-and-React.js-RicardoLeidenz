@@ -41,26 +41,27 @@ def handle_log_in():
 
     if not user:
         response_body = {
-            "message": "Invalid User entered",
+            "message": "Invalid User entered"
         }
         return jsonify(response_body), 400
 
     if not check_password_hash(user.password, user_password):
         response_body = {
-            "message": "Invalid Password entered",
+            "message": "Invalid Password entered"
         }
         return jsonify(response_body), 400
 
     token = create_access_token(identity=user_email)
 
     response_body = {
-        "message": "You Loged In",
+        "message": "Welcome back! ",
+        "user": user.serialize(),
         "token": token
     }
     return jsonify(response_body), 200
-    db.session.commit()
 
-@api.route('/user',methods=['GET'])
+
+@api.route('/user', methods=['GET'])
 @jwt_required()
 def get_user():
     user_email = get_jwt_identity()
@@ -72,7 +73,7 @@ def get_user():
         return jsonify(response_body), 400
 
     response_body = {
-        "message": "User created successfully!",
+        "message": "User fetched successfully!",
         "user": user.serialize()
     }
     return jsonify(response_body), 200

@@ -1,57 +1,35 @@
 import React, { useEffect } from "react"
-import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
 import { Signup_Login } from "../components/Signup_Login.jsx";
 
 export const Home = () => {
-
-	const { store, dispatch } = useGlobalReducer()
 	const backendUrl = import.meta.env.VITE_BACKEND_URL
-	const token = import.meta.env.VITE_TOKEN
-
-	const loadMessage = async () => {
-		try {
-			if (!backendUrl) throw new Error("VITE_BACKEND_URL is not defined in .env file")
-
-			const response = await fetch(backendUrl + "/api/hello")
-			const data = await response.json()
-
-			if (response.ok) dispatch({ type: "set_hello", payload: data.message })
-
-			return data
-
-		} catch (error) {
-			if (error.message) throw new Error(
-				`Could not fetch the message from the backend.
-				Please check if the backend is running and the backend port is public.`
-			);
-		}
-
-	}
 
 	const get_user = () => {
 		let options = {
 			method: "GET",
-			headers:{
+			headers: {
 				"Content-Type": "application/json",
-				Authorization: "Bearer " + token
+				Authorization: "Bearer " + localStorage.getItem("token")
 			}
 		}
-		fetch(backendUrl + "/user",options)
-		.then((resp)=>resp.json())
-		.then((data)=>{
-			console.log("Data =", data)
-		})
+		fetch(backendUrl + "/user", options)
+			.then((resp) => resp.json())
+			.then((data) => {
+				console.log("Data =", data)
+			})
 	}
 
 	useEffect(() => {
-		loadMessage()
 		get_user()
 	}, [])
 
 	return (
 		<div className="text-center mt-5">
-			<h1>Hi there</h1>
-			<Signup_Login/>
+			{
+				localStorage.getItem("token")
+					? "Welcome Back " + localStorage.getItem("user")
+					: <Signup_Login />
+			}
 		</div>
 	);
 }; 

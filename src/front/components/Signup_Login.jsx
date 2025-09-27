@@ -1,23 +1,17 @@
 import React, { useState } from "react";
-import { Private } from "../pages/Private";
-import useGlobalReducer from "../hooks/useGlobalReducer";
+import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 export const Signup_Login = () => {
 	const [email, setEmail] = useState("")
 	const [password, setPassword] = useState("")
 	const [statusMessage, setStatusMessage] = useState("")
-	const [token, setToken] = useState(null)
-	const [user, setUser] = useState({ "email": "" })
 	const backendUrl = import.meta.env.VITE_BACKEND_URL
-	const { store, dispatch } = useGlobalReducer()
 
 	function isTokenValid(myToken) {
 		if (!myToken) return false;
 		try {
 			const { exp } = jwtDecode(myToken);
-			console.log("Expiration:", exp)
-			console.log("This is the date: ", Date.now())
 			if (Date.now() >= exp * 1000) return false; // expired
 			return true;
 		} catch (e) {
@@ -56,9 +50,10 @@ export const Signup_Login = () => {
 			.then((resp) => resp.json())
 			.then((data) => {
 				setStatusMessage(data.message)
-				setUser(data.user)
-				setToken(data.token)
-				isTokenValid(token)
+				if (isTokenValid(data.token)) {
+					localStorage.setItem("user", data.user.email)
+					localStorage.setItem("token", data.token);
+				}
 			})
 
 	}
@@ -79,14 +74,16 @@ export const Signup_Login = () => {
 					<button className="btn-success" onClick={sign_up}>Sign Up</button>
 				</div>
 				<div className="row justify-content-center m-5">
-					<button className="btn-success" onClick={log_in}>Log In</button>
+					<Link to={"/private"}>
+						<button className="btn-success" onClick={log_in}>Log In</button>
+					</Link>
 				</div>
-				{statusMessage + user.email}
+				{
+					statusMessage
+						? <h1>statusMessage</h1>
+						: ""
+				}
 			</div>
-			{
-				isTokenValid(token) ? <Private/> : ""
-			}
-			
 		</div>
 	);
 }
